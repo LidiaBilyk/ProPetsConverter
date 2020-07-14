@@ -1,11 +1,13 @@
 package propets.converter.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.messaging.support.MessageBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import propets.converter.dto.EntityDto;
+import propets.converter.dto.LocationDto;
+import propets.converter.dto.LocationEntityDto;
 import propets.converter.dto.PostDto;
 
 @EnableBinding(DispatcherService.class)
@@ -13,7 +15,6 @@ public class PostConverterServiceImpl implements PostConverterService{
 	@Autowired
 	DispatcherService dispatcherService;
 	
-	ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	public void sendData(PostDto postDto) {
@@ -21,7 +22,7 @@ public class PostConverterServiceImpl implements PostConverterService{
 		if (entityDto.isTypePost()) {
 			dispatcherService.foundToSearch().send(MessageBuilder.withPayload(entityDto).build());
 		} 
-		if (!entityDto.isTypePost()) {
+		if (!entityDto.isTypePost()) {			
 			dispatcherService.output().send(MessageBuilder.withPayload(entityDto).build());
 		} 		
 	}
@@ -34,8 +35,20 @@ public class PostConverterServiceImpl implements PostConverterService{
 				.type(postDto.getType())
 				.sex(postDto.getSex())
 				.breed(postDto.getBreed())
-				.location(postDto.getLocation())
-				.tags(postDto.getTags())
+				.location(locationToLocationEntityDto(postDto.getLocation()))
+				.tags(tagsToString(postDto.getTags()))
+				.build();
+	}
+
+	private String tagsToString(List<String> tags) {
+		String delimeter = " ";		
+		return tags.stream().collect(Collectors.joining(delimeter));
+	}
+
+	private LocationEntityDto locationToLocationEntityDto(LocationDto location) {		
+		return LocationEntityDto.builder()
+				.lat(location.getLatitude())
+				.lon(location.getLongitude())
 				.build();
 	}
 }

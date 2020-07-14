@@ -11,15 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EntityDto {
-	
-	String id;
-	boolean typePost;
-	String userLogin;
-	String type;
-	String sex;
-	String breed;	
-	String tags;
-    LocationEntityDto location;
+public class LocationEntityDto {	
+	double lon;
+	double lat;
 
 }
